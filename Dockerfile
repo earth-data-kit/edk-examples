@@ -1,10 +1,13 @@
 FROM ghcr.io/osgeo/gdal:ubuntu-small-3.10.2
 
-# Installing pip and some dependencies
-RUN apt-get update
-RUN apt-get install -y wget
-RUN apt-get install -y python3-pip
-RUN apt-get install -y python3-venv
+# Installing dependencies efficiently
+RUN apt-get update && apt-get install -y \
+    wget \
+    python3-pip \
+    python3-venv \
+    net-tools \
+    traceroute \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 ENV VIRTUAL_ENV=/home/ubuntu/venv
 RUN python3 -m venv $VIRTUAL_ENV
@@ -20,8 +23,8 @@ RUN cp /home/ubuntu/s5cmd /usr/local/bin/
 RUN chmod +x /usr/local/bin/s5cmd
 
 # Installing earth_data_kit inside venv
-COPY ./earth_data_kit-0.1.2.tar.gz /home/ubuntu/earth_data_kit-0.1.2.tar.gz
-RUN pip install /home/ubuntu/earth_data_kit-0.1.2.tar.gz
+COPY ./earth_data_kit-0.1.3.tar.gz /home/ubuntu/earth_data_kit-0.1.3.tar.gz
+RUN pip install /home/ubuntu/earth_data_kit-0.1.3.tar.gz
 
 # Fixing permissions
 ARG NB_USER=ubuntu
