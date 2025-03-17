@@ -23,8 +23,8 @@ RUN cp /home/ubuntu/s5cmd /usr/local/bin/
 RUN chmod +x /usr/local/bin/s5cmd
 
 # Installing earth_data_kit inside venv
-COPY ./earth_data_kit-0.1.3.tar.gz /home/ubuntu/earth_data_kit-0.1.3.tar.gz
-RUN pip install /home/ubuntu/earth_data_kit-0.1.3.tar.gz
+COPY ./earth_data_kit-0.0.1a1.tar.gz /home/ubuntu/earth_data_kit-0.0.1a1.tar.gz
+RUN pip install /home/ubuntu/earth_data_kit-0.0.1a1.tar.gz
 
 # Fixing permissions
 ARG NB_USER=ubuntu
