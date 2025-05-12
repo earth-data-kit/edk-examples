@@ -1,4 +1,5 @@
 FROM ghcr.io/osgeo/gdal:ubuntu-small-3.10.2
+SHELL ["/bin/bash", "-c"]
 
 # Installing dependencies efficiently
 RUN apt-get update && apt-get install -y \
@@ -6,8 +7,7 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     python3-venv \
     net-tools \
-    traceroute \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    traceroute
 
 ENV VIRTUAL_ENV=/home/ubuntu/venv
 RUN python3 -m venv $VIRTUAL_ENV
@@ -16,15 +16,26 @@ ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 # Installing jupyter inside venv
 RUN pip install jupyter
 
-# Installing s5cmd
-RUN wget https://github.com/peak/s5cmd/releases/download/v2.3.0/s5cmd_2.3.0_Linux-32bit.tar.gz -O /home/ubuntu/s5cmd_2.3.0_Linux-32bit.tar.gz
-RUN tar -xzf /home/ubuntu/s5cmd_2.3.0_Linux-32bit.tar.gz -C /home/ubuntu/
-RUN cp /home/ubuntu/s5cmd /usr/local/bin/
-RUN chmod +x /usr/local/bin/s5cmd
+# Installing git
+RUN apt-get update && apt-get install -y git
 
-# Installing earth_data_kit inside venv
-COPY ./earth_data_kit-0.0.1a1.tar.gz /home/ubuntu/earth_data_kit-0.0.1a1.tar.gz
-RUN pip install /home/ubuntu/earth_data_kit-0.0.1a1.tar.gz
+RUN apt-get install -y jq
+
+ARG EDK_VERSION=mater
+# Installing earth_data_kit from GitHub master branch
+RUN git clone https://github.com/earth-data-kit/earth-data-kit.git /home/ubuntu/earth-data-kit
+WORKDIR /home/ubuntu/earth-data-kit
+
+RUN git fetch && git checkout release/v0.1.2
+RUN source install-gdal.sh && install_gdal
+
+WORKDIR /home/ubuntu/earth-data-kit
+RUN source install-s5cmd.sh && install_s5cmd
+
+RUN chmod +x ./install.sh
+RUN ./install.sh
+
+WORKDIR /
 
 # Fixing permissions
 ARG NB_USER=ubuntu
